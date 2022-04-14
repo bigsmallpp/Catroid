@@ -73,6 +73,7 @@ class AskSpeechAction : Action(), IntentListener {
     }
 
     override fun act(delta: Float): Boolean {
+        // TODO brick starts here
         if (!questionAsked) {
             askQuestion()
         }

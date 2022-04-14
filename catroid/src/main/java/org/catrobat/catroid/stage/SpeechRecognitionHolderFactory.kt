@@ -24,6 +24,7 @@
 package org.catrobat.catroid.stage
 
 import android.content.Context
+import com.huawei.hms.mlsdk.asr.MLAsrRecognizer
 import org.catrobat.catroid.utils.MobileServiceAvailability
 
 class SpeechRecognitionHolderFactory(
@@ -53,12 +54,12 @@ class SpeechRecognitionHolderFactory(
 
     fun isRecognitionAvailable(context: Context): Boolean {
         return when {
-            mobileServiceAvailability.isGmsAvailable(context) -> {
-                instance = gmsSpeechRecognitionHolder
-                true
-            }
             mobileServiceAvailability.isHmsAvailable(context) -> {
                 instance = hmsSpeechRecognitionHolder
+                true
+            }
+            mobileServiceAvailability.isGmsAvailable(context) -> {
+                instance = gmsSpeechRecognitionHolder
                 true
             }
             else -> false

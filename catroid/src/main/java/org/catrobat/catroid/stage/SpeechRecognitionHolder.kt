@@ -41,6 +41,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.catrobat.catroid.R
 import org.catrobat.catroid.formulaeditor.SensorHandler
+import org.catrobat.catroid.utils.ToastUtil
 import java.util.Locale
 
 class SpeechRecognitionHolder : SpeechRecognitionHolderInterface {
@@ -117,6 +118,7 @@ class SpeechRecognitionHolder : SpeechRecognitionHolderInterface {
                 // is the most likely candidate.
                 val candidates = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 Log.d(TAG, "SpeechRecognizer: onResults:$candidates")
+                ToastUtil.showError(null, "RESULTS ARE IN (GMS)")
 
                 var spokenWords = ""
                 if (candidates != null && candidates.isNotEmpty()) {

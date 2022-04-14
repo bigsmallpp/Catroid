@@ -26,7 +26,9 @@ package org.catrobat.catroid.stage
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import com.huawei.hms.mlplugin.asr.MLAsrCaptureConstants
 import com.huawei.hms.mlsdk.asr.MLAsrConstants
 import com.huawei.hms.mlsdk.asr.MLAsrListener
@@ -36,15 +38,21 @@ import org.catrobat.catroid.formulaeditor.SensorHandler
 import org.catrobat.catroid.utils.ToastUtil
 import java.lang.ref.WeakReference
 
+import android.util.Log
+
 class HmsSpeechRecognitionHolder : SpeechRecognitionHolderInterface {
     private var speechRecognizer: MLAsrRecognizer? = null
     private var speechIntent: Intent? = null
     private var context = WeakReference<Context>(null)
+    override var callback: OnSpeechRecognitionResultCallback? = null
 
     private val listener = object : MLAsrListener {
         override fun onResults(result: Bundle?) {
             val recognizedString = result?.getString(MLAsrRecognizer.RESULTS_RECOGNIZED)
             callback?.onResult(recognizedString.orEmpty())
+
+            // TODO remove after
+            ToastUtil.showError(context.get(), "RESULTS ARE IN")
         }
 
         override fun onRecognizingResults(result: Bundle?) = Unit
@@ -53,16 +61,28 @@ class HmsSpeechRecognitionHolder : SpeechRecognitionHolderInterface {
             when (error) {
                 MLAsrConstants.ERR_NO_NETWORK ->
                     ToastUtil.showError(context.get(), R.string.error_no_network_title)
+
+                // TODO Remove everthing below this line
+                MLAsrConstants.ERR_INVALIDATE_TOKEN ->
+                    ToastUtil.showError(context.get(), "Invalid Token")
+
+                MLAsrConstants.ERR_NO_UNDERSTAND ->
+                    ToastUtil.showError(context.get(), "Input wasn't understood")
+
+                MLAsrConstants.ERR_SERVICE_UNAVAILABLE ->
+                    ToastUtil.showError(context.get(), "Service is unavailable")
             }
         }
 
-        override fun onStartListening() = Unit
-        override fun onStartingOfSpeech() = Unit
+        override fun onStartListening() {
+            Log.e("","Input received")
+        }
+        override fun onStartingOfSpeech(){
+            Log.e("","User started to talk")
+        }
         override fun onVoiceDataReceived(data: ByteArray?, energy: Float, params: Bundle?) = Unit
         override fun onState(state: Int, params: Bundle?) = Unit
     }
-
-    override var callback: OnSpeechRecognitionResultCallback? = null
 
     override fun forceSetLanguage() {
         speechIntent?.putExtra(
@@ -75,21 +95,32 @@ class HmsSpeechRecognitionHolder : SpeechRecognitionHolderInterface {
         stageActivity: StageActivity,
         stageResourceHolder: StageResourceHolder
     ) {
+        // TODO asserts don't work :)
         context = WeakReference(stageActivity)
-        speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+//        speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+//            .putExtra(
+//                MLAsrCaptureConstants.LANGUAGE,
+//                SensorHandler.getListeningLanguageSensor()
+//            )
+//            .putExtra(MLAsrConstants.FEATURE, MLAsrConstants.FEATURE_ALLINONE)
+        speechIntent = Intent(MLAsrConstants.ACTION_HMS_ASR_SPEECH)
             .putExtra(
                 MLAsrCaptureConstants.LANGUAGE,
                 SensorHandler.getListeningLanguageSensor()
             )
             .putExtra(MLAsrConstants.FEATURE, MLAsrConstants.FEATURE_ALLINONE)
+
+        startListening()
     }
 
     override fun startListening() {
         context.get()?.let {
             MLAsrRecognizer.createAsrRecognizer(it).run {
                 speechRecognizer = this
+//                speechRecognizer!!.setAsrListener(listener)
                 setAsrListener(listener)
                 startRecognizing(speechIntent)
+//                speechRecognizer!!.startRecognizing(speechIntent)
             }
         }
     }

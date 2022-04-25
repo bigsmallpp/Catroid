@@ -53,10 +53,10 @@ class SpeechRecognitionHolderFactory(
 
     fun isRecognitionAvailable(context: Context): Boolean {
         return when {
-            mobileServiceAvailability.isGmsAvailable(context) -> {
-                instance = gmsSpeechRecognitionHolder
-                true
-            }
+//            mobileServiceAvailability.isGmsAvailable(context) -> {
+//                instance = gmsSpeechRecognitionHolder
+//                true
+//            }
             mobileServiceAvailability.isHmsAvailable(context) -> {
                 instance = hmsSpeechRecognitionHolder
                 true

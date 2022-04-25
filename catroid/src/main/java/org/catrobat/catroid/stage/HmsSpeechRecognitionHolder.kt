@@ -27,10 +27,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
+import android.util.Log
 import com.huawei.hms.mlplugin.asr.MLAsrCaptureConstants
 import com.huawei.hms.mlsdk.asr.MLAsrConstants
 import com.huawei.hms.mlsdk.asr.MLAsrListener
 import com.huawei.hms.mlsdk.asr.MLAsrRecognizer
+import com.huawei.hms.mlsdk.common.MLApplication
 import org.catrobat.catroid.R
 import org.catrobat.catroid.formulaeditor.SensorHandler
 import org.catrobat.catroid.utils.ToastUtil
@@ -50,9 +52,21 @@ class HmsSpeechRecognitionHolder : SpeechRecognitionHolderInterface {
         override fun onRecognizingResults(result: Bundle?) = Unit
 
         override fun onError(error: Int, errorMessage: String?) {
+            if (errorMessage != null) {
+                Log.e("HMS", errorMessage)
+            }
             when (error) {
                 MLAsrConstants.ERR_NO_NETWORK ->
                     ToastUtil.showError(context.get(), R.string.error_no_network_title)
+                // TODO Remove everthing below this line
+                MLAsrConstants.ERR_INVALIDATE_TOKEN ->
+                    ToastUtil.showError(context.get(), "Invalid Token")
+
+                MLAsrConstants.ERR_NO_UNDERSTAND ->
+                    ToastUtil.showError(context.get(), "Input wasn't understood")
+
+                MLAsrConstants.ERR_SERVICE_UNAVAILABLE ->
+                    ToastUtil.showError(context.get(), "Service is unavailable")
             }
         }
 
@@ -76,12 +90,17 @@ class HmsSpeechRecognitionHolder : SpeechRecognitionHolderInterface {
         stageResourceHolder: StageResourceHolder
     ) {
         context = WeakReference(stageActivity)
+        var language: String = SensorHandler.getListeningLanguageSensor()
+
         speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             .putExtra(
                 MLAsrCaptureConstants.LANGUAGE,
-                SensorHandler.getListeningLanguageSensor()
+                language
+                //SensorHandler.getListeningLanguageSensor()
             )
             .putExtra(MLAsrConstants.FEATURE, MLAsrConstants.FEATURE_ALLINONE)
+
+        MLApplication.getInstance().apiKey = "testkey";
     }
 
     override fun startListening() {

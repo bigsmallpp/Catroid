@@ -36,6 +36,7 @@ import android.speech.SpeechRecognizer
 import android.util.Log
 import android.view.ContextThemeWrapper
 import androidx.appcompat.app.AlertDialog
+import com.huawei.hms.mlsdk.asr.MLAsrConstants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
